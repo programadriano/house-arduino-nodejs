@@ -1,6 +1,15 @@
-var restify = require("restify");
 var builder = require("botbuilder");
+var restify = require("restify");
+var five = require("johnny-five");
 
+//board
+var led;
+var board = new five.Board();
+board.on("ready", function() {
+  led = new five.Led(13);
+});
+
+//Restify
 var server = restify.createServer();
 
 var connector = new builder.ChatConnector({
@@ -11,7 +20,11 @@ var connector = new builder.ChatConnector({
 server.post("/api/messages", connector.listen());
 
 var bot = new builder.UniversalBot(connector, function(session) {
-  session.send("Você disse: %s", session.message.text);
+  if (session.message.text == "ligar") {
+    led.on();
+  } else if (session.message.text == "desligar") {
+    led.off();
+  }
 });
 
 module.exports = server;
